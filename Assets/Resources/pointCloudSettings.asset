@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1305298839096e24290d7b38314eabc0, type: 3}
+  m_Name: pointCloudSettings
+  m_EditorClassIdentifier: 
+  basePrototype: {fileID: 2695294073009921731, guid: 7b862de4057c69c448024bc31a7ad2ed,
+    type: 3}
+  basic: {fileID: 2100000, guid: a5b69fd6967daf743a16582050be3999, type: 2}
+  colored: {fileID: 2100000, guid: e17ceca8d6d330948b69004b248b914f, type: 2}
+  flat: {fileID: 2100000, guid: 35f4b4a436a71d247955efd59916cabd, type: 2}
+  bright: {fileID: 2100000, guid: 48acc975d2c29b24db7a6bb9f784efed, type: 2}
