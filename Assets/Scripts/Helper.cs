@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEditor;
 using UnityEngine;
 
 public static class Helper
@@ -17,5 +18,15 @@ public static class Helper
     public static Color ReplaceAlpha(this Color color, float a)
     {
         Color n = color; n.a = a; return n;
+    }
+
+    public static void DrawHorizontalLine()
+    {
+        EditorGUILayout.Space();
+        var rect = EditorGUILayout.BeginHorizontal();
+        Handles.color = Color.gray;
+        Handles.DrawLine(new Vector2(rect.x, rect.y), new Vector2(rect.xMax, rect.y));
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.Space();
     }
 }
