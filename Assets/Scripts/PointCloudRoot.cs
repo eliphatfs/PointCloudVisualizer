@@ -20,11 +20,11 @@ public class PointCloudRoot : MonoBehaviour
         public ERenderType renderType;
         public bool enablePhysics;
         public Color color;
-        public Gradient gradient;
+        public Gradient gradient = new Gradient();
         public string externalColorKey;
         public string externalAlphaKey;
-        public float pointSize;
-        public float hdrFactor;
+        public float pointSize = 0.03f;
+        public float hdrFactor = 1.0f;
         public AnimationCurve alphaMappingCurve = AnimationCurve.Linear(0, 0, 1, 1);
         public ERecolorType recolorType;
     }
@@ -45,6 +45,10 @@ public class PointCloudRoot : MonoBehaviour
 
     public void Render(RenderKey key)
     {
+        var baseObj = Instantiate(settings.basePrototype, transform);
+        baseObj.transform.localScale = Vector3.one * key.pointSize;
+        baseObj.GetComponent<MeshRenderer>().material = key.renderType.GetMaterialFromSettings(settings);
+        if (key.enablePhysics) baseObj.AddComponent<SphereCollider>();
         var points = JsonMapper.ToObject<List<double[]>>(_jsonData[key.key].ToJson());
         List<double[]> colors = null;
         List<double> alphas = null;
@@ -54,10 +58,8 @@ public class PointCloudRoot : MonoBehaviour
             alphas = JsonMapper.ToObject<List<double>>(_jsonData[key.externalAlphaKey].ToJson());
         for (int i = 0; i < points.Count; i++)
         {
-            var obj = Instantiate(settings.basePrototype, transform);
+            var obj = Instantiate(baseObj, transform);
             obj.transform.localPosition = points[i].ToVector3();
-            obj.transform.localScale = Vector3.one * key.pointSize;
-            if (key.enablePhysics) obj.AddComponent<SphereCollider>();
             if (key.renderType != ERenderType.Basic)
                 switch (key.recolorType)
                 {
@@ -71,10 +73,11 @@ public class PointCloudRoot : MonoBehaviour
                         obj.GetComponent<MeshRenderer>().material.color = colors[i].ToColor() * key.hdrFactor;
                         break;
                     case ERecolorType.FixedWithAlphaData:
-                        obj.GetComponent<MeshRenderer>().material.color = colors[i].ToColor().ReplaceAlpha(key.alphaMappingCurve.Evaluate((float)alphas[i])) * key.hdrFactor;
+                        obj.GetComponent<MeshRenderer>().material.color = key.color.ReplaceAlpha(key.alphaMappingCurve.Evaluate((float)alphas[i])) * key.hdrFactor;
                         break;
                 }
         }
+        baseObj.SetActive(false);
     }
 }
 
@@ -102,12 +105,18 @@ public class PointCloudRootEditor : Editor
             Undo.RecordObject(edited, "Add Render Key");
             edited.config.renderKeys.Add(new PointCloudRoot.RenderKey());
         }
-        foreach (var key in edited.config.renderKeys)
+        foreach (var key in edited.config.renderKeys.ToArray())
         {
             Helper.DrawHorizontalLine();
+            if (GUILayout.Button("Remove Render Key"))
+            {
+                Undo.RecordObject(edited, "Remove Render Key");
+                edited.config.renderKeys.Remove(key);
+            }
             EditorGUI.BeginChangeCheck();
             var pointsKey = EditorGUILayout.DelayedTextField("Key", key.key);
             var enablePhysics = EditorGUILayout.Toggle("Enable Physics", key.enablePhysics);
+            var pointSize = EditorGUILayout.DelayedFloatField("Point Size", key.pointSize);
             var renderType = (ERenderType)EditorGUILayout.EnumPopup("Render Type", key.renderType);
             if (EditorGUI.EndChangeCheck())
             {
@@ -115,6 +124,7 @@ public class PointCloudRootEditor : Editor
                 key.key = pointsKey;
                 key.enablePhysics = enablePhysics;
                 key.renderType = renderType;
+                key.pointSize = pointSize;
             }
             if (renderType != ERenderType.Basic)
             {
