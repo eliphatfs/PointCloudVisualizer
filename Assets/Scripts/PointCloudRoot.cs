@@ -107,15 +107,76 @@ public class PointCloudRootEditor : Editor
             Helper.DrawHorizontalLine();
             EditorGUI.BeginChangeCheck();
             var pointsKey = EditorGUILayout.DelayedTextField("Key", key.key);
+            var enablePhysics = EditorGUILayout.Toggle("Enable Physics", key.enablePhysics);
             var renderType = (ERenderType)EditorGUILayout.EnumPopup("Render Type", key.renderType);
-            if (renderType != ERenderType.Basic)
-            {
-
-            }
             if (EditorGUI.EndChangeCheck())
             {
                 Undo.RecordObject(edited, "Edit Render Key");
                 key.key = pointsKey;
+                key.enablePhysics = enablePhysics;
+                key.renderType = renderType;
+            }
+            if (renderType != ERenderType.Basic)
+            {
+                EditorGUI.BeginChangeCheck();
+                var recolorType = (ERecolorType)EditorGUILayout.EnumPopup("Recolor Type", key.recolorType);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    Undo.RecordObject(edited, "Edit Recolor Type");
+                    key.recolorType = recolorType;
+                }
+                switch (recolorType)
+                {
+                    case ERecolorType.None: break;
+                    case ERecolorType.Fixed:
+                        EditorGUI.BeginChangeCheck();
+                        var color = EditorGUILayout.ColorField("Color", key.color);
+                        var hdrf = EditorGUILayout.DelayedFloatField("HDR Factor", key.hdrFactor);
+                        if (EditorGUI.EndChangeCheck())
+                        {
+                            Undo.RecordObject(edited, "Edit Recolor");
+                            key.color = color;
+                            key.hdrFactor = hdrf;
+                        }
+                        break;
+                    case ERecolorType.FixedWithAlphaData:
+                        EditorGUI.BeginChangeCheck();
+                        var colora = EditorGUILayout.ColorField("Color", key.color);
+                        var hdra = EditorGUILayout.DelayedFloatField("HDR Factor", key.hdrFactor);
+                        var ak = EditorGUILayout.DelayedTextField("Alpha Key", key.externalAlphaKey);
+                        var amc = EditorGUILayout.CurveField("Alpha Curve", key.alphaMappingCurve);
+                        if (EditorGUI.EndChangeCheck())
+                        {
+                            Undo.RecordObject(edited, "Edit Recolor");
+                            key.color = colora;
+                            key.hdrFactor = hdra;
+                            key.externalAlphaKey = ak;
+                            key.alphaMappingCurve = amc;
+                        }
+                        break;
+                    case ERecolorType.FromData:
+                        EditorGUI.BeginChangeCheck();
+                        var ck = EditorGUILayout.DelayedTextField(new GUIContent("Color Key", "Colors can be either RGB or RGBA lists."), key.externalColorKey);
+                        var hdre = EditorGUILayout.DelayedFloatField("HDR Factor", key.hdrFactor);
+                        if (EditorGUI.EndChangeCheck())
+                        {
+                            Undo.RecordObject(edited, "Edit Recolor");
+                            key.externalColorKey = ck;
+                            key.hdrFactor = hdre;
+                        }
+                        break;
+                    case ERecolorType.GradientByPointIndex:
+                        EditorGUI.BeginChangeCheck();
+                        var gr = EditorGUILayout.GradientField(new GUIContent("Gradient"), key.gradient);
+                        var hdrg = EditorGUILayout.DelayedFloatField("HDR Factor", key.hdrFactor);
+                        if (EditorGUI.EndChangeCheck())
+                        {
+                            Undo.RecordObject(edited, "Edit Recolor");
+                            key.gradient = gr;
+                            key.hdrFactor = hdrg;
+                        }
+                        break;
+                }
             }
         }
         Helper.DrawHorizontalLine();
