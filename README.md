@@ -8,7 +8,7 @@ Start unity and open `Main` scene. It contains an example setup and can be freel
 ## Usage
 ### Rendering Point Clouds (Basic)
 To render a point cloud, follow the following steps:
-1. Generate a `.json` file from your source of point cloud data and place it somewhere below the `Assets` folder of the project. The `.json` file should contain an array of objects, each object describing a point cloud for example:
+1. Generate a `.json` file from your source of point cloud data and place it somewhere below the `Assets` folder of the project (for NumPy arrays you may call the `tolist` method to obtain an object compatible with the python built-in json library). The `.json` file should contain an array of objects, each object describing a point cloud for example:
 ```json
 [
     {
